@@ -97,8 +97,16 @@ export const editProject = async (form: ProjectForm, projectId:number, token:str
   return makePGRequest(query)
 }
 
-export const fetchProjects = async (category?: string, endcursor?: string) => {
+export const fetchProjects = async (limit: number, category?: string | null, endcursor?: number | null) => {
   let query = 'SELECT * FROM projects JOIN users ON createdBy = user_id'
+  if(category) query+=' WHERE category = \'' + category + '\''
+  query+=' ORDER BY project_id LIMIT ' + limit
+  if(endcursor) query+= ' OFFSET ' + endcursor
+  return (await makePGRequest(query)).json()
+}
+
+export const projectCount = async (category?: string) => {
+  let query = 'SELECT COUNT(*) FROM projects'
   if(category) query+=' WHERE category = \'' + category + '\''
   return (await makePGRequest(query)).json()
 }
