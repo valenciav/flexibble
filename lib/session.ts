@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth";
 import { NextAuthOptions, User } from "next-auth";
 import { AdapterUser } from "next-auth/adapters";
 import GoogleProvider from 'next-auth/providers/google'
-import { SessionInterface, UserProfile } from "@/common.types";
+import { SessionInterface } from "@/common.types";
 import { createUser, getUser } from "./actions";
 
 export const authOptions: NextAuthOptions = {
@@ -12,22 +12,6 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!
     })
   ],
-  // jwt:{
-  //   encode: ({ token }) => {
-  //     const encodedToken = jsonwebtoken.sign({
-  //       ...token,
-  //       iss: 'http://localhost:3000',
-  //       exp: Math.floor(Date.now() / 1000) + 60 *60
-  //     }, process.env.NEXTAUTH_SECRET as string)
-  //     console.log(token)
-  //     return encodedToken
-  //   },
-  //   decode: async({ token }) => {
-  //     const decodedToken = jsonwebtoken.verify(token!, process.env.NEXTAUTH_SECRET as string) as JWT
-
-  //     return decodedToken
-  //   }
-  // },
   theme: {
     colorScheme: 'light',
     logo: '/logo.png'
@@ -37,6 +21,7 @@ export const authOptions: NextAuthOptions = {
       const email = session?.user?.email as string
       try {
         const data = await getUser(email)
+        if(!data || !data.rows) return session
         const newSession = {
           ...session,
           user: {
